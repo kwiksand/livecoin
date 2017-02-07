@@ -1,5 +1,9 @@
-Node.js API wrapper to the OKCoin bitcoin exchange
+Node.js API frontend for the LiveCoin Crypto Currency Exchange
 ===============
+
+Note: This repository is a fork of Neil Addison's OKCoin API Wrapper (another bitcoin exchange).  I'd previously used it to intercae with OKCoin's API's and wanted to do the same thing with LiveCoin.  All credit should go to him.
+
+## Original README.md (due to change and be removed over time)
 
 A node.js wrapper for the [REST APIs](https://www.okcoin.com/about/rest_api.do) exposed by bitcoin exchange [OKCoin](https://www.okcoin.com).
 You will need have a registered account with [OKCoin](https://www.okcoin.com) and generated API keys to access the private methods.
