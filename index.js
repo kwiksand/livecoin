@@ -1,3 +1,5 @@
+var verbose = true;
+
 var util = require('util'),
     _ = require('underscore'),
     request	= require('request'),
@@ -5,21 +7,21 @@ var util = require('util'),
     VError = require('verror'),
     md5 = require('MD5');
 
-var OKCoin = function OKCoin(api_key, secret, server, timeout)
+var LiveCoin = function LiveCoin(api_key, secret, server, timeout)
 {
     this.api_key = api_key;
     this.secret = secret;
 
-    this.server = server || 'https://www.okcoin.com';
+    this.server = server || 'https://api.livecoin.net';
 
     this.timeout = timeout || 20000;
 };
 
-var headers = {"User-Agent": "OKCoin Javascript API Client"};
+var headers = {"User-Agent": "nodejs-7.5-api-client"};
 
-OKCoin.prototype.privateRequest = function(method, params, callback)
+LiveCoin.prototype.privateRequest = function(method, params, callback)
 {
-    var functionName = 'OKCoin.privateRequest()',
+    var functionName = 'LiveCoin.privateRequest()',
         self = this;
 
     if(!this.api_key || !this.secret)
@@ -44,7 +46,7 @@ OKCoin.prototype.privateRequest = function(method, params, callback)
     params.sign = this.signMessage(params);
 
     var options = {
-        url: this.server + '/api/v1/' + method + '.do',
+        url: this.server + '/' + method + '.do',
         method: 'POST',
         headers: headers,
         form: params
@@ -61,7 +63,7 @@ OKCoin.prototype.privateRequest = function(method, params, callback)
  * @param  {Object}  params   The object to encode
  * @return {String}           The request signature
  */
-OKCoin.prototype.signMessage = function getMessageSignature(params)
+LiveCoin.prototype.signMessage = function getMessageSignature(params)
 {
     var formattedParams = formatParameters(params);
 
@@ -96,9 +98,9 @@ function formatParameters(params)
     return formattedParams;
 }
 
-OKCoin.prototype.publicRequest = function(method, params, callback)
+LiveCoin.prototype.publicRequest = function(method, params, callback)
 {
-    var functionName = 'OKCoin.publicRequest()';
+    var functionName = 'LiveCoin.publicRequest()';
 
     if(!_.isObject(params))
     {
@@ -112,7 +114,8 @@ OKCoin.prototype.publicRequest = function(method, params, callback)
         return callback(error);
     }
 
-    var url = this.server + '/api/v1/' + method + '.do';
+    var url = this.server + '/' + method;
+    if (verbose) console.log("Request URL is: " + url);
 
     var options = {
         url: url,
@@ -131,7 +134,7 @@ OKCoin.prototype.publicRequest = function(method, params, callback)
 
 function executeRequest(options, requestDesc, callback)
 {
-    var functionName = 'OKCoin.executeRequest()';
+    var functionName = 'LiveCoin.executeRequest()';
 
     request(options, function(err, response, data)
     {
@@ -182,12 +185,12 @@ function executeRequest(options, requestDesc, callback)
 // Public Functions
 //
 
-OKCoin.prototype.getTicker = function getTicker(callback, symbol)
+LiveCoin.prototype.getTicker = function getTicker(callback, pair)
 {
-    this.publicRequest('ticker', {symbol: symbol}, callback);
+    this.publicRequest('exchange/ticker', {currencyPair: pair}, callback);
 };
 
-OKCoin.prototype.getDepth = function getDepth(callback, symbol, size, merge)
+LiveCoin.prototype.getDepth = function getDepth(callback, symbol, size, merge)
 {
     var params = {
         symbol: symbol,
@@ -198,10 +201,10 @@ OKCoin.prototype.getDepth = function getDepth(callback, symbol, size, merge)
     if (!_.isUndefined(size) ) params.size = size;
     if (!_.isUndefined(merge) ) params.merge = merge;
 
-    this.publicRequest('depth', params, callback);
+    this.publicRequest('exchange/depth', params, callback);
 };
 
-OKCoin.prototype.getTrades = function getTrades(callback, symbol, since)
+LiveCoin.prototype.getTrades = function getTrades(callback, symbol, since)
 {
     var params = {symbol: symbol};
     if (since) params.since = since;
@@ -209,7 +212,7 @@ OKCoin.prototype.getTrades = function getTrades(callback, symbol, since)
     this.publicRequest('trades', params, callback);
 };
 
-OKCoin.prototype.getKline = function getKline(callback, symbol, type, size, since)
+LiveCoin.prototype.getKline = function getKline(callback, symbol, type, size, since)
 {
     var params = {symbol: symbol};
     if (type) params.type = type;
@@ -219,7 +222,7 @@ OKCoin.prototype.getKline = function getKline(callback, symbol, type, size, sinc
     this.publicRequest('kline', params, callback);
 };
 
-OKCoin.prototype.getLendDepth = function getLendDepth(callback, symbol)
+LiveCoin.prototype.getLendDepth = function getLendDepth(callback, symbol)
 {
     this.publicRequest('kline', {symbol: symbol}, callback);
 };
@@ -228,12 +231,12 @@ OKCoin.prototype.getLendDepth = function getLendDepth(callback, symbol)
 // Private Functions
 //
 
-OKCoin.prototype.getUserInfo = function getUserInfo(callback)
+LiveCoin.prototype.getUserInfo = function getUserInfo(callback)
 {
     this.privateRequest('userinfo', {}, callback);
 };
 
-OKCoin.prototype.addTrade = function addTrade(callback, symbol, type, amount, price)
+LiveCoin.prototype.addTrade = function addTrade(callback, symbol, type, amount, price)
 {
     var params = {
         symbol: symbol,
@@ -246,7 +249,7 @@ OKCoin.prototype.addTrade = function addTrade(callback, symbol, type, amount, pr
     this.privateRequest('trade', params, callback);
 };
 
-OKCoin.prototype.addBatchTrades = function addBatchTrades(callback, symbol, type, orders)
+LiveCoin.prototype.addBatchTrades = function addBatchTrades(callback, symbol, type, orders)
 {
     this.privateRequest('batch_trade', {
         symbol: symbol,
@@ -255,7 +258,7 @@ OKCoin.prototype.addBatchTrades = function addBatchTrades(callback, symbol, type
     }, callback);
 };
 
-OKCoin.prototype.cancelOrder = function cancelOrder(callback, symbol, order_id)
+LiveCoin.prototype.cancelOrder = function cancelOrder(callback, symbol, order_id)
 {
     this.privateRequest('cancel_order', {
         symbol: symbol,
@@ -263,7 +266,7 @@ OKCoin.prototype.cancelOrder = function cancelOrder(callback, symbol, order_id)
     }, callback);
 };
 
-OKCoin.prototype.getOrderInfo = function getOrderInfo(callback, symbol, order_id)
+LiveCoin.prototype.getOrderInfo = function getOrderInfo(callback, symbol, order_id)
 {
     this.privateRequest('order_info', {
         symbol: symbol,
@@ -271,7 +274,7 @@ OKCoin.prototype.getOrderInfo = function getOrderInfo(callback, symbol, order_id
     }, callback);
 };
 
-OKCoin.prototype.getOrdersInfo = function getOrdersInfo(callback, symbol, type, order_id)
+LiveCoin.prototype.getOrdersInfo = function getOrdersInfo(callback, symbol, type, order_id)
 {
     this.privateRequest('orders_info', {
         symbol: symbol,
@@ -280,7 +283,7 @@ OKCoin.prototype.getOrdersInfo = function getOrdersInfo(callback, symbol, type, 
     }, callback);
 };
 
-OKCoin.prototype.getAccountRecords = function getAccountRecords(callback, symbol, type, current_page, page_length)
+LiveCoin.prototype.getAccountRecords = function getAccountRecords(callback, symbol, type, current_page, page_length)
 {
     this.privateRequest('account_records', {
         symbol: symbol,
@@ -290,7 +293,7 @@ OKCoin.prototype.getAccountRecords = function getAccountRecords(callback, symbol
     }, callback);
 };
 
-OKCoin.prototype.getTradeHistory = function getTradeHistory(callback, symbol, since)
+LiveCoin.prototype.getTradeHistory = function getTradeHistory(callback, symbol, since)
 {
     this.privateRequest('trade_history', {
         symbol: symbol,
@@ -298,7 +301,7 @@ OKCoin.prototype.getTradeHistory = function getTradeHistory(callback, symbol, si
     }, callback);
 };
 
-OKCoin.prototype.getOrderHistory = function getOrderHistory(callback, symbol, status, current_page, page_length)
+LiveCoin.prototype.getOrderHistory = function getOrderHistory(callback, symbol, status, current_page, page_length)
 {
     this.privateRequest('order_history', {
         symbol: symbol,
@@ -308,7 +311,7 @@ OKCoin.prototype.getOrderHistory = function getOrderHistory(callback, symbol, st
     }, callback);
 };
 
-OKCoin.prototype.addWithdraw = function addWithdraw(callback, symbol, chargefee, trade_pwd, withdraw_address, withdraw_amount)
+LiveCoin.prototype.addWithdraw = function addWithdraw(callback, symbol, chargefee, trade_pwd, withdraw_address, withdraw_amount)
 {
     this.privateRequest('withdraw', {
         symbol: symbol,
@@ -319,7 +322,7 @@ OKCoin.prototype.addWithdraw = function addWithdraw(callback, symbol, chargefee,
     }, callback);
 };
 
-OKCoin.prototype.cancelWithdraw = function cancelWithdraw(callback, symbol, withdraw_id)
+LiveCoin.prototype.cancelWithdraw = function cancelWithdraw(callback, symbol, withdraw_id)
 {
     this.privateRequest('cancel_withdraw', {
         symbol: symbol,
@@ -328,8 +331,8 @@ OKCoin.prototype.cancelWithdraw = function cancelWithdraw(callback, symbol, with
 };
 
 /**
- * Maps the OKCoin error codes to error message
- * @param  {Integer}  error_code   OKCoin error code
+ * Maps the LiveCoin error codes to error message
+ * @param  {Integer}  error_code   LiveCoin error code
  * @return {String}                error message
  */
 function mapErrorMessage(error_code)
@@ -373,10 +376,10 @@ function mapErrorMessage(error_code)
 
     if (!errorCodes[error_code])
     {
-        return 'Unknown OKCoin error code: ' + error_code;
+        return 'Unknown LiveCoin error code: ' + error_code;
     }
 
     return( errorCodes[error_code] );
 }
 
-module.exports = OKCoin;
+module.exports = LiveCoin;

@@ -1,7 +1,7 @@
 Node.js API frontend for the LiveCoin Crypto Currency Exchange
 ===============
 
-Note: This repository is a fork of Neil Addison's OKCoin API Wrapper (another bitcoin exchange).  I'd previously used it to intercae with OKCoin's API's and wanted to do the same thing with LiveCoin.  All credit should go to him.
+Note: This repository is a fork of Nick Addison's OKCoin API Wrapper (another bitcoin exchange).  I'd previously used it to intercae with OKCoin's API's and wanted to do the same thing with LiveCoin.  All credit should go to him.
 
 ## Original README.md (due to change and be removed over time)
 
