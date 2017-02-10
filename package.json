@@ -1,7 +1,7 @@
 {
-    "name": "okcoin",
-    "version": "0.0.3",
-    "description": "Node.js API wrapper to the OKCoin bitcoin exchange",
+    "name": "livecoin",
+    "version": "0.0.1",
+    "description": "Node.js API wrapper to the LiveCoin bitcoin exchange",
     "main": "index.js",
     "dependencies": {
         "request": "~2.67.0",
@@ -11,15 +11,17 @@
         "MD5": "~1.3.0"
     },
     "keywords": [
-        "OKCoin",
+        "LiveCoin",
+        "api.livecoin.net",
         "api",
         "exchange",
+        "cryptocurrency",
         "bitcoin"
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/naddison36/okcoin"
+        "url": "https://github.com/kwiksand/livecoin"
     },
-    "author": "Nick Addison",
+    "author": "Shannon Carver",
     "license": "MIT"
 }
