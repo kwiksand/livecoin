@@ -1,4 +1,4 @@
-var verbose = true;
+//var verbose = true;
 
 var util = require('util'),
     _ = require('underscore'),
