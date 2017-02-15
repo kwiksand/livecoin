@@ -1,4 +1,4 @@
-//var verbose = true;
+var verbose = false;
 
 var util = require('util'),
     _ = require('underscore'),
@@ -190,26 +190,35 @@ LiveCoin.prototype.getTicker = function getTicker(callback, pair)
     this.publicRequest('exchange/ticker', {currencyPair: pair}, callback);
 };
 
-LiveCoin.prototype.getDepth = function getDepth(callback, symbol, size, merge)
+LiveCoin.prototype.getOrderBook = function getOrderBook(callback, pair, groupByPrice, depth)
 {
     var params = {
-        symbol: symbol,
-        size: 200,
-        merge: 1
+        currencyPair: pair,
+        depth: 10,
+        groupByPrice: false
     };
 
-    if (!_.isUndefined(size) ) params.size = size;
-    if (!_.isUndefined(merge) ) params.merge = merge;
+    if (!_.isUndefined(depth) ) params.depth = depth;
+    if (!_.isUndefined(groupByPrice) ) params.groupByPrice = groupByPrice;
 
-    this.publicRequest('exchange/depth', params, callback);
+    this.publicRequest('exchange/order_book', params, callback);
 };
 
-LiveCoin.prototype.getTrades = function getTrades(callback, symbol, since)
+LiveCoin.prototype.getTrades = function getTrades(callback, pair, timePeriod, type)
 {
-    var params = {symbol: symbol};
-    if (since) params.since = since;
+    var params = {
+        currencyPair: pair,
+        minutesOrHour: "false"
+    };
 
-    this.publicRequest('trades', params, callback);
+    if (!_.isUndefined(timePeriod) && timePeriod == "minute") {
+        params.minutesOrHour = "true";
+    }
+    if (!_.isUndefined(type) && (type.toUpperCase() == "BUY" || type.toUpperCase() == "SELL")) {
+        params.type = type.toUpperCase();
+    }
+
+    this.publicRequest('exchange/last_trades', params, callback);
 };
 
 LiveCoin.prototype.getKline = function getKline(callback, symbol, type, size, since)
